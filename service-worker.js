@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rohn-pos-v30';
+const CACHE_NAME = 'rohn-pos-v31';
 const LOCAL_ASSETS = [
     './',
     './index.html',
@@ -30,19 +30,23 @@ self.addEventListener('fetch', event => {
 
     event.respondWith(
         (async () => {
-            const cached = await caches.match(event.request);
-            if (cached) return cached;
+            try {
+                // Prefer the network so newly deployed HTML, CSS and JavaScript
+                // appear immediately instead of being hidden by an old cache.
+                const response = await fetch(event.request);
 
-            const response = await fetch(event.request);
+                if (response.ok && response.type === 'basic') {
+                    const cache = await caches.open(CACHE_NAME);
+                    await cache.put(event.request, response.clone());
+                }
 
-            // Cache only complete, same-origin responses. Awaiting the write
-            // prevents a rejected cache operation from becoming an uncaught promise.
-            if (response.ok && response.type === 'basic') {
-                const cache = await caches.open(CACHE_NAME);
-                await cache.put(event.request, response.clone());
+                return response;
+            } catch (error) {
+                // Preserve offline support when the network is unavailable.
+                const cached = await caches.match(event.request, { ignoreSearch: true });
+                if (cached) return cached;
+                throw error;
             }
-
-            return response;
         })()
     );
 });

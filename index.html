@@ -242,8 +242,9 @@
         // Check for service worker support
         if ('serviceWorker' in navigator) {
             // Register the service worker
-            navigator.serviceWorker.register('./service-worker.js')
+            navigator.serviceWorker.register('./service-worker.js', { updateViaCache: 'none' })
                 .then(registration => {
+                    registration.update();
                     console.log('Service Worker registered successfully:', registration);
                 })
                 .catch(error => {
