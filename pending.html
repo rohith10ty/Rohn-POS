@@ -203,7 +203,8 @@
         </div>
     </div>
     <script>
-        let pendingTargetTransaction = 1;
+        const storedPendingTarget = Number(localStorage.getItem('pos_current_transaction'));
+        let pendingTargetTransaction = [1, 2, 3].includes(storedPendingTarget) ? storedPendingTarget : 1;
 
         function loadPendingTransactions() {
             const data = localStorage.getItem('pos_pending');
@@ -282,6 +283,7 @@
             document.querySelectorAll('.transactions button').forEach((button, index) => {
                 button.addEventListener('click', () => {
                     pendingTargetTransaction = index + 1;
+                    localStorage.setItem('pos_current_transaction', String(pendingTargetTransaction));
                     document.querySelectorAll('.transactions button').forEach((item, itemIndex) => {
                         const active = itemIndex === index;
                         item.classList.toggle('active', active);
@@ -289,7 +291,11 @@
                     });
                 });
             });
-            document.querySelector('.transactions button')?.classList.add('active');
+            document.querySelectorAll('.transactions button').forEach((button, index) => {
+                const active = index + 1 === pendingTargetTransaction;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-pressed', String(active));
+            });
             renderPendingTransactions();
         });
     </script>

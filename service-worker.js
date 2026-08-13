@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rohn-pos-v31';
+const CACHE_NAME = 'rohn-pos-v33';
 const LOCAL_ASSETS = [
     './',
     './index.html',

@@ -9,13 +9,33 @@ setInterval(updateDateTime, 1000);
 updateDateTime();
 
 // ========== Transactions ==========
-let currentTransaction = 1;
+function getStoredTransactionNumber() {
+    const storedTransaction = Number(localStorage.getItem('pos_current_transaction'));
+    return [1, 2, 3].includes(storedTransaction) ? storedTransaction : 1;
+}
+
+function setCurrentTransaction(transactionNumber) {
+    currentTransaction = [1, 2, 3].includes(Number(transactionNumber)) ? Number(transactionNumber) : 1;
+    localStorage.setItem('pos_current_transaction', String(currentTransaction));
+}
+
+let currentTransaction = getStoredTransactionNumber();
 let transactions = loadTransactionsFromStorage();
 let selectedItemIndex = -1;
+let statusExpiryTimer = null;
+const STATUS_DISPLAY_MS = 60 * 1000;
+
+function createTimedStatus(status, details = {}) {
+    return {
+        status,
+        ...details,
+        statusExpiresAt: Date.now() + STATUS_DISPLAY_MS
+    };
+}
 
 document.querySelectorAll('.transactions button').forEach((btn, index) => {
     btn.addEventListener('click', () => {
-        currentTransaction = index + 1;
+        setCurrentTransaction(index + 1);
         selectedItemIndex = -1;
         updateTransactionView();
     });
@@ -152,7 +172,39 @@ function updateSelectionControls() {
 }
 
 function updateTransactionView(paidAmount = null, changeAmount = null) {
-    const items = Array.isArray(transactions[currentTransaction]) ? transactions[currentTransaction] : [];
+    if (statusExpiryTimer) {
+        clearTimeout(statusExpiryTimer);
+        statusExpiryTimer = null;
+    }
+
+    const transactionNumber = currentTransaction;
+    let items = Array.isArray(transactions[transactionNumber]) ? transactions[transactionNumber] : [];
+    const timedStatus = items.find(item => item.status === 'Payment Pending' || String(item.status || '').startsWith('Transaction Cleared'));
+
+    if (timedStatus) {
+        if (!Number.isFinite(Number(timedStatus.statusExpiresAt))) {
+            timedStatus.statusExpiresAt = Date.now() + STATUS_DISPLAY_MS;
+            saveTransactionsToStorage();
+        }
+
+        const remainingTime = Number(timedStatus.statusExpiresAt) - Date.now();
+        if (remainingTime <= 0) {
+            transactions[transactionNumber] = [];
+            saveTransactionsToStorage();
+            items = [];
+        } else {
+            statusExpiryTimer = setTimeout(() => {
+                const savedItems = Array.isArray(transactions[transactionNumber]) ? transactions[transactionNumber] : [];
+                const savedStatus = savedItems.find(item => item.status === 'Payment Pending' || String(item.status || '').startsWith('Transaction Cleared'));
+                if (savedStatus && Number(savedStatus.statusExpiresAt) <= Date.now()) {
+                    transactions[transactionNumber] = [];
+                    saveTransactionsToStorage();
+                    if (currentTransaction === transactionNumber) updateTransactionView();
+                }
+            }, remainingTime);
+        }
+    }
+
     const itemList = document.querySelector('.item-list');
     if (!itemList) return { totalQty: 0, totalAmount: 0 };
     itemList.innerHTML = `
@@ -271,7 +323,7 @@ function getEntryTime(entry) {
 
 function resetActiveTransactions() {
     transactions = { 1: [], 2: [], 3: [] };
-    currentTransaction = 1;
+    setCurrentTransaction(1);
     selectedItemIndex = -1;
     saveTransactionsToStorage();
     updateTransactionView();
@@ -554,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let {totalQty, totalAmount} = updateTransactionView();
 
-            transactions[currentTransaction] = [{ status: "Transaction Cleared" }]; // Store the ID
+            transactions[currentTransaction] = [createTimedStatus("Transaction Cleared")];
             saveTransactionsToStorage();
             updateTransactionView(totalAmount, 0); //show paid and change
         });
@@ -579,7 +631,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateTransactionView();
 
                 saveToHistory("Sale", itemsToClear);
-                transactions[currentTransaction] = [{ status: "Transaction Cleared", paid: cashReceived, change: changeAmount }];
+                transactions[currentTransaction] = [createTimedStatus("Transaction Cleared", { paid: cashReceived, change: changeAmount })];
                 saveTransactionsToStorage();
                 updateTransactionView(cashReceived, changeAmount);
                 alert(`Transaction complete. Cash received: ${formatCurrency(cashReceived)}, Change: ${formatCurrency(changeAmount)}`);
@@ -627,12 +679,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             saveToHistory(`Sale - ${method}`, itemsToClear);
-            transactions[currentTransaction] = [{
-                status: `Transaction Cleared via ${method}`,
+            transactions[currentTransaction] = [createTimedStatus(`Transaction Cleared via ${method}`, {
                 paid: paidAmount,
                 change: changeAmount,
                 paymentMethod: method
-            }];
+            })];
             selectedItemIndex = -1;
             saveTransactionsToStorage();
             updateTransactionView(paidAmount, changeAmount);
@@ -660,7 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pending.push(pendingTransaction);
             savePendingTransactions(pending);
 
-            transactions[currentTransaction] = [{ status: "Payment Pending" }];
+            transactions[currentTransaction] = [createTimedStatus("Payment Pending")];
             saveTransactionsToStorage();
             updateTransactionView();
             alert("Transaction marked for Pay Later.");
