@@ -839,6 +839,27 @@ a:focus-visible {
   min-height: 44px;
 }
 
+/* Match Back and selection arrows to the white Home button style. */
+.footer-buttons .btn-outline-light,
+.transaction-controls .btn-outline-light,
+.scroll-btns:not(.transaction-controls) .btn-outline-light {
+  color: #212529 !important;
+  background-color: #f8f9fa !important;
+  border-color: #f8f9fa !important;
+}
+
+.footer-buttons .btn-outline-light:hover,
+.transaction-controls .btn-outline-light:hover,
+.scroll-btns:not(.transaction-controls) .btn-outline-light:hover {
+  color: #212529 !important;
+  background-color: #e2e6ea !important;
+  border-color: #dae0e5 !important;
+}
+
+.footer-buttons .btn-outline-light img {
+  filter: none;
+}
+
 @media (max-width: 767.98px) {
   .transaction-controls {
     display: grid !important;
@@ -854,5 +875,284 @@ a:focus-visible {
   .remove-selected-item {
     width: 100%;
     min-width: 0 !important;
+  }
+}
+
+/* Compact, fixed phone workspace (including OnePlus Nord CE-sized screens). */
+@media (max-width: 767.98px) {
+  html,
+  body.main-page,
+  body.menu-page,
+  body.payments-page,
+  body.pending-page,
+  body.history-page {
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden !important;
+  }
+
+  body:not(.history-page) .container-fluid,
+  body:not(.history-page) .container-fluid > .row {
+    width: 100%;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    overflow: hidden;
+  }
+
+  body:not(.history-page) .left-panel {
+    flex: 0 0 42dvh;
+    height: 42dvh;
+    min-height: 0;
+    max-height: none;
+    overflow: hidden;
+  }
+
+  body:not(.history-page) .right-panel {
+    flex: 0 0 58dvh;
+    height: 58dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .transactions {
+    flex: 0 0 50px;
+    min-height: 50px;
+    padding: 0.35rem !important;
+  }
+
+  .transactions button {
+    min-height: 38px;
+    padding: 0.35rem 0.2rem !important;
+    font-size: 0.78rem !important;
+    line-height: 1.1;
+  }
+
+  .datetime {
+    flex: 0 0 40px;
+    min-height: 40px;
+    padding: 0.45rem !important;
+    font-size: 0.9rem;
+  }
+
+  .item-list {
+    min-height: 0 !important;
+    padding: 0.45rem !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+  }
+
+  .item-list .item-header,
+  .item-list .transaction-item-row {
+    grid-template-columns: minmax(0, 1fr) 44px 70px;
+    font-size: 0.82rem;
+  }
+
+  .transaction-controls,
+  .footer-buttons {
+    flex: 0 0 52px;
+    height: 52px;
+    min-height: 52px;
+    padding: 0.35rem !important;
+  }
+
+  .transaction-controls {
+    gap: 0.4rem;
+  }
+
+  .transaction-controls button,
+  .remove-selected-item,
+  .footer-buttons button {
+    height: 40px;
+    min-height: 40px;
+    padding: 0.35rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  .info-bar {
+    flex: 0 0 40px;
+    min-height: 40px;
+    padding: 0.35rem 0.45rem !important;
+    gap: 0.25rem;
+    flex-wrap: nowrap;
+    font-size: 0.72rem;
+    line-height: 1.1;
+  }
+
+  .actions,
+  .main-actions,
+  .menu-actions {
+    flex: 1 1 auto;
+    min-height: 0;
+    gap: 0.3rem !important;
+    padding: 0.4rem !important;
+    align-content: stretch;
+    align-items: stretch;
+  }
+
+  .actions > button,
+  .actions button,
+  .main-actions > button,
+  .menu-actions > button {
+    height: 100%;
+    min-height: 0;
+    padding: 0.3rem 0.2rem !important;
+    border-radius: 0.5rem !important;
+    font-size: 0.72rem !important;
+    line-height: 1.05;
+  }
+
+  .actions button img,
+  .actions > button img {
+    width: 19px;
+    height: 19px;
+    margin-bottom: 0.15rem;
+  }
+
+  .main-page .main-actions,
+  .menu-page .menu-actions {
+    grid-template-rows: repeat(5, minmax(0, 1fr));
+  }
+
+  .main-page .main-actions > button,
+  .menu-page .menu-actions > button,
+  .payments-page .actions > button {
+    align-self: stretch;
+  }
+
+  .payments-page .actions {
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+  }
+
+  .payments-page .actions > button:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .footer-buttons {
+    flex-wrap: nowrap;
+  }
+
+  .footer-buttons button {
+    flex: 1 1 0;
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .footer-buttons img {
+    width: 17px;
+    height: 17px;
+  }
+
+  .item-list .transaction-item-row.is-status-row {
+    min-height: 92px;
+  }
+
+  .transaction-status {
+    min-height: 52px;
+    font-size: 0.95rem;
+  }
+
+  /* History controls stay fixed; only the results area can scroll. */
+  .history-page .left-panel {
+    flex: 0 0 43dvh;
+    height: 43dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .history-page .right-panel {
+    flex: 0 0 57dvh;
+    height: 57dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .history-page .left-panel > div:first-child {
+    display: grid;
+    grid-template-rows: 50px 40px minmax(0, 1fr);
+    height: 100%;
+    min-height: 0;
+  }
+
+  .history-page .history-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    gap: 0.35rem !important;
+    min-height: 0;
+    padding: 0.4rem !important;
+  }
+
+  .history-page .history-actions > button {
+    grid-column: auto !important;
+    height: auto;
+    min-height: 0;
+    padding: 0.25rem !important;
+    border-radius: 0.5rem !important;
+    font-size: 0.7rem !important;
+    line-height: 1.05;
+  }
+
+  .history-page .history-actions > button:last-child {
+    grid-column: 1 / -1 !important;
+  }
+
+  .history-page .left-panel > .scroll-btns {
+    display: none !important;
+  }
+
+  .history-page .info-bar {
+    flex: 0 0 42px;
+    min-height: 42px;
+    font-size: 0.75rem;
+  }
+
+  .history-page .history-list-container {
+    padding: 0.45rem !important;
+    overflow-y: auto !important;
+  }
+
+  .history-page .transaction {
+    margin-bottom: 0.5rem;
+    padding: 0.65rem;
+    border-radius: 0.55rem;
+  }
+
+  .history-page .transaction h3 {
+    margin-bottom: 0.35rem;
+    font-size: 1.05rem;
+  }
+
+  .history-page .transaction p,
+  .history-page .transaction ul {
+    margin-bottom: 0.35rem;
+    font-size: 0.78rem;
+  }
+
+  .history-page .transaction li {
+    padding: 0.2rem 0;
+  }
+
+  .history-page .footer-buttons {
+    flex: 0 0 52px;
+  }
+
+  .history-page .payment-totals-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+  }
+
+  .history-page .payment-total-card,
+  .history-page .payment-total-card.grand-total {
+    grid-column: auto;
+    min-height: 104px;
+    gap: 0.35rem;
+    padding: 0.75rem;
+    border-radius: 0.55rem;
+    font-size: 0.75rem;
+  }
+
+  .history-page .payment-total-card strong {
+    font-size: 1.25rem;
   }
 }
