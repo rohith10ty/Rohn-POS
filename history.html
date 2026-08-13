@@ -1,254 +1,582 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rohn POS - Transaction History</title>
-    <link rel="icon" type="image/png" href="cash-register.png">
-    <link rel="apple-touch-icon" href="cash-register.png">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="icon" type="image/png" href="cash-register.png" />
+    <link rel="apple-touch-icon" href="cash-register.png" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
     <style>
-        html, body { height: 100%; margin: 0; font-family: Arial, sans-serif; background: #4a4a4a; color: white; }
-        .container-fluid { height: 100%; display: flex; flex-direction: column; }
-        .row { display: flex; flex-grow: 1; }
-        .left-panel { width: 40%; background: #555; display: flex; flex-direction: column; justify-content: space-between; }
-        .right-panel { width: 60%; background: #888; display: flex; flex-direction: column; justify-content: space-between; }
-        .transactions { display: flex; justify-content: space-around; padding: 10px; }
-        .transactions button { flex: 1; margin: 0 5px; padding: 10px; font-size: 16px; }
-        .datetime { text-align: center; padding: 10px; background: #666; }
-        .info-bar { display: flex; justify-content: space-between; padding: 10px 20px; background: #999; }
-        .actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 20px; }
-        .actions button { width: 100%; min-height: 70px; padding: 12px; border: 0; border-radius: 8px; }
-        .history-list-container { flex-grow: 1; padding: 10px; overflow-y: auto; }
-        .transaction { margin-bottom: 15px; padding: 14px; border: 1px solid #ccc; border-radius: 8px; background: #f9f9f9; color: #333; }
-        .transaction h3 { margin: 0 0 10px; color: #555; }
-        .transaction ul { list-style: none; padding: 0; }
-        .transaction li, .archive-entry { padding: 5px 0; border-bottom: 1px dashed #ddd; }
-        .total { margin-top: 10px; color: #007bff; font-weight: bold; }
-        .footer-buttons { display: flex; justify-content: space-between; padding: 10px 20px; }
-        .footer-buttons button { padding: 10px 20px; font-size: 16px; border: 0; border-radius: 5px; }
-        .payment-totals-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-        .payment-total-card { display: flex; flex-direction: column; gap: 10px; padding: 22px; border-radius: 10px; background: #f8f9fa; color: #333; box-shadow: 0 3px 8px rgb(0 0 0 / 18%); }
-        .payment-total-card strong { font-size: 1.7rem; color: #007bff; }
-        .payment-total-card.grand-total { grid-column: 1 / -1; background: #e9ecef; }
-        .view-active { outline: 3px solid #ffd166 !important; }
-        @media (max-width: 600px) { .payment-totals-grid { grid-template-columns: 1fr; } .payment-total-card.grand-total { grid-column: auto; } }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #4a4a4a;
+        color: white;
+      }
+      .container-fluid {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .row {
+        display: flex;
+        flex-grow: 1;
+      }
+      .left-panel {
+        width: 40%;
+        background: #555;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .right-panel {
+        width: 60%;
+        background: #888;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .transactions {
+        display: flex;
+        justify-content: space-around;
+        padding: 10px;
+      }
+      .transactions button {
+        flex: 1;
+        margin: 0 5px;
+        padding: 10px;
+        font-size: 16px;
+      }
+      .datetime {
+        text-align: center;
+        padding: 10px;
+        background: #666;
+      }
+      .info-bar {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 20px;
+        background: #999;
+      }
+      .actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 20px;
+      }
+      .actions button {
+        width: 100%;
+        min-height: 70px;
+        padding: 12px;
+        border: 0;
+        border-radius: 8px;
+      }
+      .history-list-container {
+        flex-grow: 1;
+        padding: 10px;
+        overflow-y: auto;
+      }
+      .transaction {
+        margin-bottom: 15px;
+        padding: 14px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background: #f9f9f9;
+        color: #333;
+      }
+      .transaction h3 {
+        margin: 0 0 10px;
+        color: #555;
+      }
+      .transaction ul {
+        list-style: none;
+        padding: 0;
+      }
+      .transaction li,
+      .archive-entry {
+        padding: 5px 0;
+        border-bottom: 1px dashed #ddd;
+      }
+      .total {
+        margin-top: 10px;
+        color: #007bff;
+        font-weight: bold;
+      }
+      .footer-buttons {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 20px;
+      }
+      .footer-buttons button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: 0;
+        border-radius: 5px;
+      }
+      .payment-totals-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .payment-total-card {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 22px;
+        border-radius: 10px;
+        background: #f8f9fa;
+        color: #333;
+        box-shadow: 0 3px 8px rgb(0 0 0 / 18%);
+      }
+      .payment-total-card strong {
+        font-size: 1.7rem;
+        color: #007bff;
+      }
+      .payment-total-card.grand-total {
+        grid-column: 1 / -1;
+        background: #e9ecef;
+      }
+      .view-active {
+        outline: 3px solid #ffd166 !important;
+      }
+      @media (max-width: 600px) {
+        .payment-totals-grid {
+          grid-template-columns: 1fr;
+        }
+        .payment-total-card.grand-total {
+          grid-column: auto;
+        }
+      }
     </style>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body class="history-page">
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="history-page">
     <div class="container-fluid h-100">
-        <div class="row h-100">
-            <div class="col-md-4 left-panel d-flex flex-column justify-content-between">
-                <div>
-                    <div class="transactions d-flex justify-content-around p-2">
-                        <button onclick="window.location.href='index.html'" class="btn btn-secondary">Back to POS</button>
-                        <button id="filter-history" class="btn btn-secondary">Filters</button>
-                        <button id="search-history" class="btn btn-secondary">Search</button>
-                    </div>
-                    <div class="datetime bg-secondary text-center p-2"></div>
-                    <div class="actions history-actions">
-                        <button id="show-transactions" class="btn btn-secondary">Transactions</button>
-                        <button id="clear-history-filters" class="btn btn-secondary">Clear Filters</button>
-                        <button id="export-pdf" class="btn btn-secondary">Export PDF</button>
-                        <button id="show-day-reports" class="btn btn-secondary">Day End Reports</button>
-                        <button id="show-shift-reports" class="btn btn-secondary">Shift End Reports</button>
-                        <button id="show-payment-totals" class="btn btn-secondary">Payment Totals</button>
-                        <button id="delete-history" class="btn btn-secondary">Delete Active History</button>
-                    </div>
-                </div>
-                <div class="scroll-btns d-flex justify-content-center p-2">
-                    <button class="btn btn-outline-light mr-1">&uarr;</button>
-                    <button class="btn btn-outline-light">&darr;</button>
-                </div>
+      <div class="row h-100">
+        <div
+          class="col-md-4 left-panel d-flex flex-column justify-content-between"
+        >
+          <div>
+            <div class="transactions d-flex justify-content-around p-2">
+              <button
+                onclick="window.location.href = 'index.html'"
+                class="btn btn-secondary"
+              >
+                Back to POS
+              </button>
+              <button id="filter-history" class="btn btn-secondary">
+                Filters
+              </button>
+              <button id="search-history" class="btn btn-secondary">
+                Search
+              </button>
             </div>
-            <div class="col-md-8 right-panel d-flex flex-column justify-content-between">
-                <div class="info-bar bg-light text-dark d-flex justify-content-between p-2">
-                    <div id="history-heading">Transaction Count: <span id="history-count">0</span></div>
-                    <div id="active-filter-label"></div>
-                </div>
-                <div class="history-list-container p-2 overflow-auto flex-grow-1" id="history-list"></div>
-                <div class="footer-buttons bg-secondary d-flex justify-content-between p-2">
-                    <button id="print-history" class="btn btn-light" onclick="window.print()">Print Current View</button>
-                    <button class="btn btn-outline-light" onclick="window.history.back()">
-                        <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/arrow-left.svg" alt="Back">
-                        Back
-                    </button>
-                </div>
+            <div class="datetime bg-secondary text-center p-2"></div>
+            <div class="actions history-actions">
+              <button id="show-transactions" class="btn btn-secondary">
+                Transactions
+              </button>
+              <button id="clear-history-filters" class="btn btn-secondary">
+                Clear Filters
+              </button>
+              <button id="export-pdf" class="btn btn-secondary">
+                Export PDF
+              </button>
+              <button id="show-day-reports" class="btn btn-secondary">
+                Day End Reports
+              </button>
+              <button id="show-shift-reports" class="btn btn-secondary">
+                Shift End Reports
+              </button>
+              <button id="show-payment-totals" class="btn btn-secondary">
+                Payment Totals
+              </button>
+              <button id="delete-history" class="btn btn-secondary">
+                Delete Active History
+              </button>
             </div>
+          </div>
+          <div class="scroll-btns d-flex justify-content-center p-2">
+            <button class="btn btn-outline-light mr-1">&uarr;</button>
+            <button class="btn btn-outline-light">&darr;</button>
+          </div>
         </div>
+        <div
+          class="col-md-8 right-panel d-flex flex-column justify-content-between"
+        >
+          <div
+            class="info-bar bg-light text-dark d-flex justify-content-between p-2"
+          >
+            <div id="history-heading">
+              Transaction Count: <span id="history-count">0</span>
+            </div>
+            <div id="active-filter-label"></div>
+          </div>
+          <div
+            class="history-list-container p-2 overflow-auto flex-grow-1"
+            id="history-list"
+          ></div>
+          <div
+            class="footer-buttons bg-secondary d-flex justify-content-between p-2"
+          >
+            <button
+              id="print-history"
+              class="btn btn-light"
+              onclick="window.print()"
+            >
+              Print Current View
+            </button>
+            <button
+              class="btn btn-outline-light"
+              onclick="window.history.back()"
+            >
+              <img
+                src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/arrow-left.svg"
+                alt="Back"
+              />
+              Back
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
     <script src="script.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
-        let historyFilters = { method: 'All', date: '' };
-        let currentHistoryView = 'transactions';
+      let historyFilters = { method: "All", date: "" };
+      let currentHistoryView = "transactions";
 
-        const getQuery = () => (localStorage.getItem('pos_history_query') || '').toLowerCase();
-        const getDate = () => historyFilters.date ? new Date(`${historyFilters.date}T00:00:00`).toLocaleDateString('en-GB') : '';
+      const getQuery = () =>
+        (localStorage.getItem("pos_history_query") || "").toLowerCase();
+      const getDate = () =>
+        historyFilters.date
+          ? new Date(`${historyFilters.date}T00:00:00`).toLocaleDateString(
+              "en-GB",
+            )
+          : "";
 
-        function entryMatches(entry) {
-            const query = getQuery();
-            const date = getDate();
-            const type = String(entry.type || '').toLowerCase();
-            const queryMatch = !query || String(entry.timestamp || '').toLowerCase().includes(query) || type.includes(query) ||
-                (entry.items || []).some(item => String(item.name || item.status || '').toLowerCase().includes(query));
-            const dateMatch = !date || String(entry.timestamp || '').startsWith(date);
-            const method = historyFilters.method.toLowerCase();
-            const methodMatch = historyFilters.method === 'All' ||
-                (historyFilters.method === 'Cash' ? type === 'sale' || type.includes('cash') :
-                historyFilters.method === 'Debit Card' ? type.includes('debit card') || type.includes('apple pay') :
-                historyFilters.method === 'Refund' ? type.includes('refund') : type.includes(method));
-            return queryMatch && dateMatch && methodMatch;
-        }
+      function entryMatches(entry) {
+        const query = getQuery();
+        const date = getDate();
+        const type = String(entry.type || "").toLowerCase();
+        const queryMatch =
+          !query ||
+          String(entry.timestamp || "")
+            .toLowerCase()
+            .includes(query) ||
+          type.includes(query) ||
+          (entry.items || []).some((item) =>
+            String(item.name || item.status || "")
+              .toLowerCase()
+              .includes(query),
+          );
+        const dateMatch =
+          !date || String(entry.timestamp || "").startsWith(date);
+        const method = historyFilters.method.toLowerCase();
+        const methodMatch =
+          historyFilters.method === "All" ||
+          (historyFilters.method === "Cash"
+            ? type === "sale" || type.includes("cash")
+            : historyFilters.method === "Debit Card"
+              ? type.includes("debit card") || type.includes("apple pay")
+              : historyFilters.method === "Refund"
+                ? type.includes("refund")
+                : type.includes(method));
+        return queryMatch && dateMatch && methodMatch;
+      }
 
-        function reportMatches(report) {
-            const entries = report.transactions || report.allTransactions || [];
-            const ended = new Date(report.endedAt).toLocaleString('en-GB');
-            const query = getQuery();
-            const date = getDate();
-            const matchingEntries = entries.filter(entryMatches);
-            const queryMatch = !query || String(report.id).toLowerCase().includes(query) || ended.toLowerCase().includes(query) || matchingEntries.length;
-            const dateMatch = !date || ended.startsWith(date) || matchingEntries.length;
-            const methodMatch = historyFilters.method === 'All' || matchingEntries.length;
-            return queryMatch && dateMatch && methodMatch;
-        }
+      function reportMatches(report) {
+        const entries = report.transactions || report.allTransactions || [];
+        const ended = new Date(report.endedAt).toLocaleString("en-GB");
+        const query = getQuery();
+        const date = getDate();
+        const matchingEntries = entries.filter(entryMatches);
+        const queryMatch =
+          !query ||
+          String(report.id).toLowerCase().includes(query) ||
+          ended.toLowerCase().includes(query) ||
+          matchingEntries.length;
+        const dateMatch =
+          !date || ended.startsWith(date) || matchingEntries.length;
+        const methodMatch =
+          historyFilters.method === "All" || matchingEntries.length;
+        return queryMatch && dateMatch && methodMatch;
+      }
 
-        function setHeading(label, count) {
-            document.getElementById('history-heading').innerHTML = `${label}: <span id="history-count">${count}</span>`;
-            const parts = [];
-            if (historyFilters.method !== 'All') parts.push(historyFilters.method);
-            if (historyFilters.date) parts.push(historyFilters.date);
-            if (getQuery()) parts.push(`Search: ${getQuery()}`);
-            document.getElementById('active-filter-label').textContent = parts.join(' | ');
-        }
+      function setHeading(label, count) {
+        document.getElementById("history-heading").innerHTML =
+          `${label}: <span id="history-count">${count}</span>`;
+        const parts = [];
+        if (historyFilters.method !== "All") parts.push(historyFilters.method);
+        if (historyFilters.date) parts.push(historyFilters.date);
+        if (getQuery()) parts.push(`Search: ${getQuery()}`);
+        document.getElementById("active-filter-label").textContent =
+          parts.join(" | ");
+      }
 
-        function entryCard(entry, printable = true) {
-            const card = document.createElement('article');
-            card.className = 'transaction';
-            card.innerHTML = `
-                <h3>Type: ${escapeHtml(entry.type || '-')}</h3>
-                <p>Date: ${escapeHtml(entry.timestamp || '-')}</p>
-                <ul>${(entry.items || []).map(item => `<li>${escapeHtml(item.name || item.status || '-')} — Qty: ${item.qty || '-'}, Total: ${formatCurrency(item.total)}</li>`).join('')}</ul>
+      function entryCard(entry, printable = true) {
+        const card = document.createElement("article");
+        card.className = "transaction";
+        card.innerHTML = `
+                <h3>Type: ${escapeHtml(entry.type || "-")}</h3>
+                <p>Date: ${escapeHtml(entry.timestamp || "-")}</p>
+                <ul>${(entry.items || []).map((item) => `<li>${escapeHtml(item.name || item.status || "-")} — Qty: ${item.qty || "-"}, Total: ${formatCurrency(item.total)}</li>`).join("")}</ul>
                 <div class="total">Total: ${formatCurrency(entry.total)}</div>
-                ${printable ? '<button class="print-receipt-btn btn btn-sm btn-primary mt-2">Print Receipt</button>' : ''}
+                ${printable ? '<button class="print-receipt-btn btn btn-sm btn-primary mt-2">Print Receipt</button>' : ""}
             `;
-            card.querySelector('.print-receipt-btn')?.addEventListener('click', () => printReceipt(entry));
-            return card;
-        }
+        card
+          .querySelector(".print-receipt-btn")
+          ?.addEventListener("click", () => printReceipt(entry));
+        return card;
+      }
 
-        function printReceipt(entry) {
-            const receipt = window.open('', '', 'width=420,height=650');
-            receipt.document.write(`<h2>${escapeHtml(entry.type)}</h2><p>${escapeHtml(entry.timestamp)}</p>`);
-            receipt.document.write(`<ul>${(entry.items || []).map(item => `<li>${escapeHtml(item.name || '-')}: ${formatCurrency(item.total)}</li>`).join('')}</ul>`);
-            receipt.document.write(`<h3>Total: ${formatCurrency(entry.total)}</h3>`);
-            receipt.document.close(); receipt.print();
-        }
+      function printReceipt(entry) {
+        const receipt = window.open("", "", "width=420,height=650");
+        receipt.document.write(
+          `<h2>${escapeHtml(entry.type)}</h2><p>${escapeHtml(entry.timestamp)}</p>`,
+        );
+        receipt.document.write(
+          `<ul>${(entry.items || []).map((item) => `<li>${escapeHtml(item.name || "-")}: ${formatCurrency(item.total)}</li>`).join("")}</ul>`,
+        );
+        receipt.document.write(
+          `<h3>Total: ${formatCurrency(entry.total)}</h3>`,
+        );
+        receipt.document.close();
+        receipt.print();
+      }
 
-        function displayTransactions() {
-            const lookupActive = Boolean(getQuery() || historyFilters.method !== 'All' || historyFilters.date);
-            const sourceEntries = lookupActive
-                ? allUniqueEntries()
-                : JSON.parse(localStorage.getItem('pos_history') || '[]');
-            const entries = sourceEntries
-                .filter(entryMatches)
-                .sort((a, b) => getEntryTime(b) - getEntryTime(a));
-            const list = document.getElementById('history-list'); list.innerHTML = '';
-            entries.forEach(entry => list.appendChild(entryCard(entry)));
-            if (!entries.length) list.innerHTML = '<p>No matching current or previous transactions found.</p>';
-            setHeading('Transaction Count', entries.length);
-        }
+      function displayTransactions() {
+        const lookupActive = Boolean(
+          getQuery() || historyFilters.method !== "All" || historyFilters.date,
+        );
+        const sourceEntries = lookupActive
+          ? allUniqueEntries()
+          : JSON.parse(localStorage.getItem("pos_history") || "[]");
+        const entries = sourceEntries
+          .filter(entryMatches)
+          .sort((a, b) => getEntryTime(b) - getEntryTime(a));
+        const list = document.getElementById("history-list");
+        list.innerHTML = "";
+        entries.forEach((entry) => list.appendChild(entryCard(entry)));
+        if (!entries.length)
+          list.innerHTML =
+            "<p>No matching current or previous transactions found.</p>";
+        setHeading("Transaction Count", entries.length);
+      }
 
-        function displayReports(kind) {
-            const key = kind === 'shift' ? 'pos_shift_reports' : 'pos_day_reports';
-            const reports = JSON.parse(localStorage.getItem(key) || '[]').filter(reportMatches).reverse();
-            const list = document.getElementById('history-list'); list.innerHTML = '';
-            reports.forEach(report => {
-                const entries = (report.transactions || report.allTransactions || []).filter(entryMatches);
-                const card = document.createElement('section'); card.className = 'transaction archive-report';
-                card.innerHTML = `<h3>${kind === 'shift' ? 'Shift End Report' : 'Day End Report'}</h3>
-                    <p><strong>Started:</strong> ${new Date(report.startedAt).toLocaleString('en-GB')}</p>
-                    <p><strong>Ended:</strong> ${new Date(report.endedAt).toLocaleString('en-GB')}</p>
-                    ${kind === 'day' ? `<p><strong>Shifts included:</strong> ${(report.shiftReportIds || []).length}</p>` : ''}
+      function displayReports(kind) {
+        const key = kind === "shift" ? "pos_shift_reports" : "pos_day_reports";
+        const reports = JSON.parse(localStorage.getItem(key) || "[]")
+          .filter(reportMatches)
+          .reverse();
+        const list = document.getElementById("history-list");
+        list.innerHTML = "";
+        reports.forEach((report) => {
+          const entries = (
+            report.transactions ||
+            report.allTransactions ||
+            []
+          ).filter(entryMatches);
+          const card = document.createElement("section");
+          card.className = "transaction archive-report";
+          card.innerHTML = `<h3>${kind === "shift" ? "Shift End Report" : "Day End Report"}</h3>
+                    <p><strong>Started:</strong> ${new Date(report.startedAt).toLocaleString("en-GB")}</p>
+                    <p><strong>Ended:</strong> ${new Date(report.endedAt).toLocaleString("en-GB")}</p>
+                    ${kind === "day" ? `<p><strong>Shifts included:</strong> ${(report.shiftReportIds || []).length}</p>` : ""}
                     <p><strong>Matching transactions:</strong> ${entries.length}</p>
                     <div class="total">Report net total: ${formatCurrency(report.total)}</div>
                     <div class="archive-report-entries"></div>`;
-                entries.forEach(entry => {
-                    const row = document.createElement('div'); row.className = 'archive-entry';
-                    row.textContent = `${entry.timestamp} — ${entry.type}: ${formatCurrency(entry.total)}`;
-                    card.querySelector('.archive-report-entries').appendChild(row);
-                });
-                list.appendChild(card);
-            });
-            if (!reports.length) list.innerHTML = `<p>No matching ${kind} end reports found.</p>`;
-            setHeading(kind === 'shift' ? 'Shift Report Count' : 'Day Report Count', reports.length);
-        }
+          entries.forEach((entry) => {
+            const row = document.createElement("div");
+            row.className = "archive-entry";
+            row.textContent = `${entry.timestamp} — ${entry.type}: ${formatCurrency(entry.total)}`;
+            card.querySelector(".archive-report-entries").appendChild(row);
+          });
+          list.appendChild(card);
+        });
+        if (!reports.length)
+          list.innerHTML = `<p>No matching ${kind} end reports found.</p>`;
+        setHeading(
+          kind === "shift" ? "Shift Report Count" : "Day Report Count",
+          reports.length,
+        );
+      }
 
-        function allUniqueEntries() {
-            const entries = [
-                ...JSON.parse(localStorage.getItem('pos_history') || '[]'),
-                ...JSON.parse(localStorage.getItem('pos_shift_reports') || '[]').flatMap(report => report.transactions || []),
-                ...JSON.parse(localStorage.getItem('pos_day_reports') || '[]').flatMap(report => report.allTransactions || [])
-            ];
-            const seen = new Set();
-            return entries.filter(entry => { const key = entry.id || `${entry.timestamp}-${entry.type}-${entry.total}`; if (seen.has(key)) return false; seen.add(key); return true; });
-        }
+      function allUniqueEntries() {
+        const entries = [
+          ...JSON.parse(localStorage.getItem("pos_history") || "[]"),
+          ...JSON.parse(
+            localStorage.getItem("pos_shift_reports") || "[]",
+          ).flatMap((report) => report.transactions || []),
+          ...JSON.parse(
+            localStorage.getItem("pos_day_reports") || "[]",
+          ).flatMap((report) => report.allTransactions || []),
+        ];
+        const seen = new Set();
+        return entries.filter((entry) => {
+          const key =
+            entry.id || `${entry.timestamp}-${entry.type}-${entry.total}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+      }
 
-        function displayTotals() {
-            // Payment totals are an independent lifetime summary and intentionally ignore search/filter settings.
-            const entries = allUniqueEntries();
-            const sum = test => entries.filter(test).reduce((value, entry) => value + (Number(entry.total) || 0), 0);
-            const cash = sum(entry => { const t = entry.type.toLowerCase(); return t === 'sale' || t.includes('cash') || t.includes('refund'); });
-            const debit = sum(entry => {
-                const type = entry.type.toLowerCase();
-                return type.includes('debit card') || type.includes('apple pay');
-            });
-            const credit = sum(entry => entry.type.toLowerCase().includes('credit card'));
-            const overall = entries.reduce((value, entry) => value + (Number(entry.total) || 0), 0);
-            document.getElementById('history-list').innerHTML = `<section class="payment-totals-grid">
+      function displayTotals() {
+        // Payment totals are an independent lifetime summary and intentionally ignore search/filter settings.
+        const entries = allUniqueEntries();
+        const sum = (test) =>
+          entries
+            .filter(test)
+            .reduce((value, entry) => value + (Number(entry.total) || 0), 0);
+        const cash = sum((entry) => {
+          const t = entry.type.toLowerCase();
+          return t === "sale" || t.includes("cash") || t.includes("refund");
+        });
+        const debit = sum((entry) => {
+          const type = entry.type.toLowerCase();
+          return type.includes("debit card") || type.includes("apple pay");
+        });
+        const credit = sum((entry) =>
+          entry.type.toLowerCase().includes("credit card"),
+        );
+        const overall = entries.reduce(
+          (value, entry) => value + (Number(entry.total) || 0),
+          0,
+        );
+        document.getElementById("history-list").innerHTML =
+          `<section class="payment-totals-grid">
                 <article class="payment-total-card"><span>Total Cash Received</span><strong>${formatCurrency(cash)}</strong></article>
                 <article class="payment-total-card"><span>Total Debit Card Received</span><strong>${formatCurrency(debit)}</strong></article>
                 <article class="payment-total-card"><span>Total Credit Card Received</span><strong>${formatCurrency(credit)}</strong></article>
-                <article class="payment-total-card grand-total"><span>Total Received From Everything</span><strong>${formatCurrency(overall)}</strong></article>
+                <article class="payment-total-card grand-total"><span>Total Received</span><strong>${formatCurrency(overall)}</strong></article>
             </section>`;
-            document.getElementById('history-heading').innerHTML = `Included Transaction Count: <span id="history-count">${entries.length}</span>`;
-            document.getElementById('active-filter-label').textContent = 'All payments';
-        }
+        document.getElementById("history-heading").innerHTML =
+          `Included Transaction Count: <span id="history-count">${entries.length}</span>`;
+        document.getElementById("active-filter-label").textContent =
+          "All payments";
+      }
 
-        function render() {
-            document.querySelectorAll('[id^="show-"]').forEach(button => button.classList.remove('view-active'));
-            document.getElementById(`show-${currentHistoryView === 'shift' ? 'shift-reports' : currentHistoryView === 'day' ? 'day-reports' : currentHistoryView === 'totals' ? 'payment-totals' : 'transactions'}`)?.classList.add('view-active');
-            if (currentHistoryView === 'shift') return displayReports('shift');
-            if (currentHistoryView === 'day') return displayReports('day');
-            if (currentHistoryView === 'totals') return displayTotals();
-            displayTransactions();
-        }
+      function render() {
+        document
+          .querySelectorAll('[id^="show-"]')
+          .forEach((button) => button.classList.remove("view-active"));
+        document
+          .getElementById(
+            `show-${currentHistoryView === "shift" ? "shift-reports" : currentHistoryView === "day" ? "day-reports" : currentHistoryView === "totals" ? "payment-totals" : "transactions"}`,
+          )
+          ?.classList.add("view-active");
+        if (currentHistoryView === "shift") return displayReports("shift");
+        if (currentHistoryView === "day") return displayReports("day");
+        if (currentHistoryView === "totals") return displayTotals();
+        displayTransactions();
+      }
 
-        document.getElementById('show-shift-reports').onclick = () => { currentHistoryView = 'shift'; render(); };
-        document.getElementById('show-day-reports').onclick = () => { currentHistoryView = 'day'; render(); };
-        document.getElementById('show-payment-totals').onclick = () => { currentHistoryView = 'totals'; render(); };
-        document.getElementById('show-transactions').onclick = () => { currentHistoryView = 'transactions'; render(); };
-        document.getElementById('search-history').onclick = async () => {
-            const values = await showPosDialog({ title: 'Search History and Reports', message: 'Search active transactions, old shifts, and old day reports.', fields: [{ name: 'query', label: 'Search term', value: localStorage.getItem('pos_history_query') || '', required: false }], confirmText: 'Search' });
-            if (!values) return;
-            localStorage.setItem('pos_history_query', values.query.trim());
-            currentHistoryView = 'transactions';
-            render();
-        };
-        document.getElementById('filter-history').onclick = async () => {
-            const values = await showPosDialog({ title: 'Filter History and Reports', message: 'The selected filters apply to transactions, shift reports, and day reports.', fields: [
-                { name: 'method', label: 'Payment or transaction type', options: ['All', 'Cash', 'Debit Card', 'Credit Card', 'Apple Pay', 'Amex', 'Refund'], value: historyFilters.method },
-                { name: 'date', label: 'Date', type: 'date', value: historyFilters.date, required: false }
-            ], confirmText: 'Apply Filters' });
-            if (!values) return;
-            historyFilters = values;
-            currentHistoryView = 'transactions';
-            render();
-        };
-        document.getElementById('clear-history-filters').onclick = () => { historyFilters = { method: 'All', date: '' }; localStorage.removeItem('pos_history_query'); render(); };
-        document.getElementById('delete-history').onclick = () => { if (confirm('Delete active transaction history? Archived shift and day reports will be preserved.')) { localStorage.removeItem('pos_history'); render(); } };
-        document.getElementById('export-pdf').onclick = () => { if (window.jspdf) { const pdf = new window.jspdf.jsPDF(); pdf.text(document.getElementById('history-list').innerText.slice(0, 8000), 10, 15, { maxWidth: 190 }); pdf.save(`${currentHistoryView}-history.pdf`); } };
-        document.addEventListener('DOMContentLoaded', render);
+      document.getElementById("show-shift-reports").onclick = () => {
+        currentHistoryView = "shift";
+        render();
+      };
+      document.getElementById("show-day-reports").onclick = () => {
+        currentHistoryView = "day";
+        render();
+      };
+      document.getElementById("show-payment-totals").onclick = () => {
+        currentHistoryView = "totals";
+        render();
+      };
+      document.getElementById("show-transactions").onclick = () => {
+        currentHistoryView = "transactions";
+        render();
+      };
+      document.getElementById("search-history").onclick = async () => {
+        const values = await showPosDialog({
+          title: "Search History and Reports",
+          message:
+            "Search active transactions, old shifts, and old day reports.",
+          fields: [
+            {
+              name: "query",
+              label: "Search term",
+              value: localStorage.getItem("pos_history_query") || "",
+              required: false,
+            },
+          ],
+          confirmText: "Search",
+        });
+        if (!values) return;
+        localStorage.setItem("pos_history_query", values.query.trim());
+        currentHistoryView = "transactions";
+        render();
+      };
+      document.getElementById("filter-history").onclick = async () => {
+        const values = await showPosDialog({
+          title: "Filter History and Reports",
+          message:
+            "The selected filters apply to transactions, shift reports, and day reports.",
+          fields: [
+            {
+              name: "method",
+              label: "Payment or transaction type",
+              options: [
+                "All",
+                "Cash",
+                "Debit Card",
+                "Credit Card",
+                "Apple Pay",
+                "Amex",
+                "Refund",
+              ],
+              value: historyFilters.method,
+            },
+            {
+              name: "date",
+              label: "Date",
+              type: "date",
+              value: historyFilters.date,
+              required: false,
+            },
+          ],
+          confirmText: "Apply Filters",
+        });
+        if (!values) return;
+        historyFilters = values;
+        currentHistoryView = "transactions";
+        render();
+      };
+      document.getElementById("clear-history-filters").onclick = () => {
+        historyFilters = { method: "All", date: "" };
+        localStorage.removeItem("pos_history_query");
+        render();
+      };
+      document.getElementById("delete-history").onclick = () => {
+        if (
+          confirm(
+            "Delete active transaction history? Archived shift and day reports will be preserved.",
+          )
+        ) {
+          localStorage.removeItem("pos_history");
+          render();
+        }
+      };
+      document.getElementById("export-pdf").onclick = () => {
+        if (window.jspdf) {
+          const pdf = new window.jspdf.jsPDF();
+          pdf.text(
+            document.getElementById("history-list").innerText.slice(0, 8000),
+            10,
+            15,
+            { maxWidth: 190 },
+          );
+          pdf.save(`${currentHistoryView}-history.pdf`);
+        }
+      };
+      document.addEventListener("DOMContentLoaded", render);
     </script>
-</body>
+  </body>
 </html>
